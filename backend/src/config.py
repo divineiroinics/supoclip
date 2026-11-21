@@ -74,7 +74,9 @@ class Config:
         self.stream_download_max_seconds = self._get_int_env("STREAM_DOWNLOAD_MAX_SECONDS", 2400)
         self.youtube_proxy_country = os.getenv("YOUTUBE_PROXY_COUNTRY", "").strip()
         self.youtube_pot_provider_url = os.getenv("YOUTUBE_POT_PROVIDER_URL", "").strip()
-        self.youtube_download_max_bytes = self._get_int_env("YOUTUBE_DOWNLOAD_MAX_BYTES", 2_000_000_000)
+        # Long YouTube sources need a larger shared audio/section budget. 8 GB is
+        # enough for many 50-hour audio-first jobs, but storage remains finite.
+        self.youtube_download_max_bytes = self._get_int_env("YOUTUBE_DOWNLOAD_MAX_BYTES", 8_000_000_000)
         self.youtube_section_padding_seconds = self._get_float_env("YOUTUBE_SECTION_PADDING_SECONDS", 10.0)
         self.youtube_max_height = self._get_int_env("YOUTUBE_MAX_HEIGHT", 1080)
         self.youtube_source_cache = self._get_bool_env("YOUTUBE_SOURCE_CACHE", True)
@@ -196,7 +198,7 @@ class Config:
         # "processing" forever. Default comfortably exceeds arq's job_timeout so
         # a legitimately long job is never falsely swept into "error".
         self.processing_task_timeout_seconds = int(
-            os.getenv("PROCESSING_TASK_TIMEOUT_SECONDS", "14400")
+            os.getenv("PROCESSING_TASK_TIMEOUT_SECONDS", "273600")
         )
         # One account can hold at most this many video renders at once. The
         # worker has a handful of CPU slots, and one render can run for hours,
